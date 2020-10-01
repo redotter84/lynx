@@ -4,8 +4,7 @@
 #include "env.h"
 #include "simple.h"
 
-class Asm
-{
+class Asm {
 private:
 	string asm_vars;
 	string asm_funs;
@@ -29,4 +28,3 @@ public:
 	string asm_code;
 	Asm(const SyntaxTree& tree);
 };
-

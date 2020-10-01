@@ -12,32 +12,22 @@
 
 int main(const int argc, const char* argv[]) // main
 {
-	try
-	{
+	try {
 		string filename = "code\\hello.lnx";
 		bool exec = false;
 		bool disp = false;
 		string asm_fn = "code\\hello.asm";
 		string exe_fn = "code\\hello.exe";
-		if (argc > 2)
-		{
+		if (argc > 2) {
 			filename = argv[1];
-			for (size_t i = 2; i != size_t(argc); i++)
-			{
-				if (string(argv[i]) == "-ex")
-				{
+			for (size_t i = 2; i != size_t(argc); i++) {
+				if (string(argv[i]) == "-ex") {
 					exec = true;
-				}
-				else if (string(argv[i]) == "-d")
-				{
+				} else if (string(argv[i]) == "-d") {
 					disp = true;
-				}
-				else if (string(argv[i]) == "-asm")
-				{
+				} else if (string(argv[i]) == "-asm") {
 					asm_fn = argv[++i];
-				}
-				else if (string(argv[i]) == "-out")
-				{
+				} else if (string(argv[i]) == "-out") {
 					exe_fn = argv[++i];
 				}
 			}
@@ -45,8 +35,7 @@ int main(const int argc, const char* argv[]) // main
 
 		const vector<string> lines = load_code(filename);
 
-		if (disp)
-		{
+		if (disp) {
 			cout << "code" << endl << endl;
 			for_each(lines.cbegin(), lines.cend(), [](const auto& el) {cout << el << endl; });
 			getchar();
@@ -55,8 +44,7 @@ int main(const int argc, const char* argv[]) // main
 		const Scaner scaner = Scaner(lines);
 		const vector<Token> pre_tokens = scaner.get_tokens();
 
-		if (disp)
-		{
+		if (disp) {
 			cout << "scaner result" << endl << endl;
 			for_each(pre_tokens.cbegin(), pre_tokens.cend(),
 				[](const auto& el) { cout << str_token(el.first) << " " << el.second << endl; });
@@ -66,8 +54,7 @@ int main(const int argc, const char* argv[]) // main
 		const Parser parser = Parser(pre_tokens);
 		vector<Token> tokens = parser.get_struct();
 
-		if (disp)
-		{
+		if (disp) {
 			cout << "parser result" << endl << endl;
 			for_each(tokens.cbegin(), tokens.cend(),
 				[](const auto& el) { cout << str_token(el.first) << " " << el.second << endl; });
@@ -75,9 +62,8 @@ int main(const int argc, const char* argv[]) // main
 		}
 
 		SyntaxTree tree = create_tree(&tokens);
-		
-		if (disp)
-		{
+
+		if (disp) {
 			cout << "semantic result" << endl;
 			cout << (string)tree << endl;
 			getchar();
@@ -85,17 +71,15 @@ int main(const int argc, const char* argv[]) // main
 
 		const SimpleTree stree = SimpleTree(tree);
 
-		if (disp)
-		{
+		if (disp) {
 			cout << "optimisator result" << endl;
 			cout << (string)tree << endl;
 			getchar();
 		}
 
 		const Asm asm_c = Asm(tree);
-		
-		if (disp)
-		{
+
+		if (disp) {
 			cout << "assembly code" << endl << endl;
 			cout << asm_c.asm_code << endl;
 			getchar();
@@ -110,19 +94,16 @@ int main(const int argc, const char* argv[]) // main
 			exe_fn + "\"";
 		system(asm_f.c_str());
 
-		if (exec)
-		{
+		if (exec) {
 			replace_all(exe_fn, " ", "\" \"");
 			const string exe_f = exe_fn;
 			system(exe_f.c_str());
 			getchar();
 		}
-	}
-	catch (const char* err)
-	{
+	} catch (const char* err) {
 		cout << err << "\a" << endl;
 		getchar();
 	}
-	
+
 	return 0;
 }

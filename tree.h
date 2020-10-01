@@ -4,8 +4,7 @@
 #include "env.h"
 #include "tools.h"
 
-class SyntaxTree
-{
+class SyntaxTree {
 private:
 	Nodes id_type(Token token) const;
 	string view(const string n) const;

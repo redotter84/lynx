@@ -1,12 +1,7 @@
-#pragma once
-
-#include "stdafx.h"
-
 #include "parser.h"
 
-vector<Token> Parser::sugar_while(const vector<Token>& tokens, 
-	vector<Token>::const_iterator& iter) const
-{
+vector<Token> Parser::sugar_while(const vector<Token>& tokens,
+	vector<Token>::const_iterator& iter) const {
 	vector<Token> res;
 
 	res.push_back(Token(Tokens::Key, "for"));
@@ -31,9 +26,8 @@ vector<Token> Parser::sugar_while(const vector<Token>& tokens,
 	return res;
 }
 
-vector<Token> Parser::sugar_elif(const vector<Token>& tokens, 
-	vector<Token>::const_iterator& iter) const 
-{
+vector<Token> Parser::sugar_elif(const vector<Token>& tokens,
+	vector<Token>::const_iterator& iter) const {
 	vector<Token> res;
 
 	res.push_back(Token(Tokens::Key, "else"));
@@ -46,8 +40,7 @@ vector<Token> Parser::sugar_elif(const vector<Token>& tokens,
 
 	vector<Token> t_code = go_throw(vector<Token>(iter + int(cond_code.size()) + 2,
 		tokens.cend()), "elif");
-	if (t_code.size() != 0)
-	{
+	if (t_code.size() != 0) {
 		const vector<Token> then_code(iter + int(cond_code.size() + 2), tokens.cend());
 		merge(res, sugar(then_code));
 
@@ -56,9 +49,7 @@ vector<Token> Parser::sugar_elif(const vector<Token>& tokens,
 
 		iter += int(cond_code.size() + then_code.size() + 1);
 		return res;
-	}
-	else
-	{
+	} else {
 		const vector<Token> then_code = go_throw(vector<Token>(iter + int(cond_code.size()) + 2,
 			tokens.cend()), "else");
 		merge(res, sugar(then_code));
@@ -72,36 +63,28 @@ vector<Token> Parser::sugar_elif(const vector<Token>& tokens,
 
 		res.push_back(Token(Tokens::Key, "end"));
 		res.push_back(Token(Tokens::Sep, ";"));
-	
+
 		iter += int(cond_code.size() + then_code.size() + 2 + else_code.size() + 1);
 
 		return res;
 	}
 }
 
-vector<Token> Parser::sugar(const vector<Token>& tokens) const 
-{
+vector<Token> Parser::sugar(const vector<Token>& tokens) const {
 	vector<Token> res;
-	for (auto iter = tokens.cbegin(); iter != tokens.cend(); iter++)
-	{
-		if (iter->second == "while")
-		{
+	for (auto iter = tokens.cbegin(); iter != tokens.cend(); iter++) {
+		if (iter->second == "while") {
 			merge(res, this->sugar_while(tokens, iter));
-		}
-		else if (iter->second == "elif")
-		{
+		} else if (iter->second == "elif") {
 			merge(res, this->sugar_elif(tokens, iter));
-		}
-		else
-		{
+		} else {
 			res.push_back(*iter);
 		}
 	}
 	return res;
 }
 
-vector<Token> Parser::parse_if(const vector<Token>& code) const
-{
+vector<Token> Parser::parse_if(const vector<Token>& code) const {
 	vector<Token> res(2);
 	res[0] = Token(Tokens::Macro, "if");
 
@@ -130,8 +113,7 @@ vector<Token> Parser::parse_if(const vector<Token>& code) const
 	return res;
 }
 
-vector<Token> Parser::parse_for(const vector<Token>& code) const
-{
+vector<Token> Parser::parse_for(const vector<Token>& code) const {
 	vector<Token> res(2);
 	res[0] = Token(Tokens::Macro, "for");
 
@@ -140,7 +122,7 @@ vector<Token> Parser::parse_for(const vector<Token>& code) const
 	const vector<Token> init_code(code.cbegin(), first + 1);
 	const auto init_stat = this->get_expr(init_code);
 	merge(res, init_stat);
-	
+
 	res.push_back(Token(Tokens::Macro, "end-for-init"));
 
 	res.push_back(Token(Tokens::Macro, "for-cond"));
@@ -168,8 +150,7 @@ vector<Token> Parser::parse_for(const vector<Token>& code) const
 	return res;
 }
 
-vector<Token> Parser::parse_def(const vector<Token>& code) const
-{
+vector<Token> Parser::parse_def(const vector<Token>& code) const {
 	vector<Token> res(2);
 
 	res[0] = Token(Tokens::Macro, "def");
@@ -200,8 +181,7 @@ vector<Token> Parser::parse_def(const vector<Token>& code) const
 	return res;
 }
 
-vector<Token> Parser::parse_block(const vector<Token>& code) const
-{
+vector<Token> Parser::parse_block(const vector<Token>& code) const {
 	vector<Token> res(1);
 	res[0] = Token(Tokens::Macro, "block");
 
@@ -212,75 +192,53 @@ vector<Token> Parser::parse_block(const vector<Token>& code) const
 	return res;
 }
 
-vector<Token> Parser::parse_stat(const vector<Token>& code) const
-{
+vector<Token> Parser::parse_stat(const vector<Token>& code) const {
 	const vector<Token> body(code.cbegin() + 1, code.cend());
-	if (code[0].second == "if")
-	{
+	if (code[0].second == "if") {
 		return this->parse_if(body);
-	}
-	else if (code[0].second == "for")
-	{
+	} else if (code[0].second == "for") {
 		return this->parse_for(body);
-	}
-	else if (code[0].second == "def")
-	{
+	} else if (code[0].second == "def") {
 		return this->parse_def(body);
-	}
-	else if (code[0].second == "block")
-	{
+	} else if (code[0].second == "block") {
 		return this->parse_block(body);
 	}
 	return{};
 }
 
-vector<Token> Parser::get_expr(const vector<Token>& code) const
-{
+vector<Token> Parser::get_expr(const vector<Token>& code) const {
 	vector<Token> res;
 	vector<Token> temp;
-	for (auto iter = code.cbegin(); iter != code.cend(); iter++)
-	{
-		if (iter->first == Tokens::Sep)
-		{
-			if (!temp.empty())
-			{
+	for (auto iter = code.cbegin(); iter != code.cend(); iter++) {
+		if (iter->first == Tokens::Sep) {
+			if (!temp.empty()) {
 				res.push_back(Token(Tokens::Macro, "expr"));
 				merge(res, dijkstra(temp));
 				res.push_back(Token(Tokens::Macro, "end-expr"));
 				temp = {};
 			}
-		}
-		else if (iter->first == Tokens::Key)
-		{
-			if (!temp.empty())
-			{
+		} else if (iter->first == Tokens::Key) {
+			if (!temp.empty()) {
 				res.push_back(Token(Tokens::Macro, "expr"));
 				merge(res, dijkstra(temp));
 				res.push_back(Token(Tokens::Macro, "end-expr"));
 				temp = {};
 			}
-			if (db_stat.find(iter->second) != db_stat.cend())
-			{
+			if (db_stat.find(iter->second) != db_stat.cend()) {
 				const vector<Token> stat = go_throw(vector<Token>(iter, code.cend()), "end", 0);
 				iter += int(stat.size());
 				const auto ext_stat = this->parse_stat(stat);
-				for (const auto& expr : ext_stat)
-				{
+				for (const auto& expr : ext_stat) {
 					res.push_back(expr);
 				}
-			}
-			else
-			{
+			} else {
 				res.push_back(*iter);
 			}
-		}
-		else
-		{
+		} else {
 			temp.push_back(*iter);
 		}
 	}
-	if (!temp.empty())
-	{
+	if (!temp.empty()) {
 		res.push_back({ Token(Tokens::Macro, "expr") });
 		merge(res, dijkstra(temp));
 		res.push_back({ Token(Tokens::Macro, "end-expr") });
@@ -288,8 +246,7 @@ vector<Token> Parser::get_expr(const vector<Token>& code) const
 	return res;
 }
 
-vector<Token> Parser::get_struct() const
-{
+vector<Token> Parser::get_struct() const {
 	vector<Token> res(1);
 	res[0] = Token(Tokens::Macro, "program");
 	auto prog = this->get_expr(this->sugar(_code));
@@ -298,7 +255,6 @@ vector<Token> Parser::get_struct() const
 	return res;
 }
 
-Parser::Parser(const vector<Token>& c)
-{
+Parser::Parser(const vector<Token>& c) {
 	_code = c;
 }

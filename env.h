@@ -43,7 +43,6 @@ enum class Tokens // enum for tokens for scaner
 
 using Token = pair<Tokens, string>;
 
-enum class Nodes
-{
+enum class Nodes {
 	Program, Block, Expr, Stat, Lit, Oper, Fun, FunName, Var, Arr, Unknown
 };

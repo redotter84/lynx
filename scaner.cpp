@@ -2,42 +2,30 @@
 
 string Scaner::compress_code(const vector<string>& c) const // join lines to one string
 {
-	if (c.empty())
-	{
+	if (c.empty()) {
 		return "";
 	}
 
 	string res;
-	for (const auto& iter : c)
-	{
+	for (const auto& iter : c) {
 		size_t com_pos = iter.length();
 		bool instr = false;
-		for (size_t i = 0; i != iter.length(); i++)
-		{
-			if (iter[i] == '"')
-			{
+		for (size_t i = 0; i != iter.length(); i++) {
+			if (iter[i] == '"') {
 				instr = !instr;
-			}
-			else if (!instr && iter[i] == '#')
-			{
+			} else if (!instr && iter[i] == '#') {
 				com_pos = i;
 				break;
 			}
 		}
 		res += iter.substr(0, com_pos);
-		if (iter[iter.length() - 1] == '\\')
-		{
-			if (!res.empty())
-			{
+		if (iter[iter.length() - 1] == '\\') {
+			if (!res.empty()) {
 				res.erase(res.length() - 1);
 			}
-		}
-		else if (iter[iter.length() - 1] != ';' && iter[iter.length() - 1] != ':')
-		{
+		} else if (iter[iter.length() - 1] != ';' && iter[iter.length() - 1] != ':') {
 			res += "; ";
-		}
-		else
-		{
+		} else {
 			res += " ";
 		}
 	}
@@ -50,39 +38,28 @@ Tokens Scaner::id_token(string& token) const // recognize which token is for str
 	if (db_oper.find(token) != db_oper.cend()) // operators
 	{
 		return Tokens::Oper;
-	}
-	else if (db_key.find(token) != db_key.cend()) // keyword
+	} else if (db_key.find(token) != db_key.cend()) // keyword
 	{
 		return Tokens::Key;
-	}
-	else if (is_num(token))
-	{
-		if (token.find('.') == string::npos)
-		{
+	} else if (is_num(token)) {
+		if (token.find('.') == string::npos) {
 			token += ".0";
 		}
 		return Tokens::Lit;
-	}
-	else if (token[0] == '"' ||
+	} else if (token[0] == '"' ||
 		db_lit.find(token) != db_lit.cend()) // string or number or true/false/nil
 	{
 		return Tokens::Lit;
-	}
-	else if (token == ":" || token == ";") // separator
+	} else if (token == ":" || token == ";") // separator
 	{
 		return Tokens::Sep;
-	}
-	else if (token == "(" || token == ")" || token == "[" || token == "]" ||
+	} else if (token == "(" || token == ")" || token == "[" || token == "]" ||
 		token == "{" || token == "}") // bracket
 	{
 		return Tokens::Br;
-	}
-	else if (token == "")
-	{
+	} else if (token == "") {
 		return Tokens::Unknown;
-	}
-	else
-	{
+	} else {
 		return Tokens::Name;
 	}
 }
@@ -98,24 +75,16 @@ vector<Token> Scaner::get_tokens() const // replace code to tokens
 	string current;
 	bool instr = false;
 
-	for (size_t i = 0; i != _code.length(); i++)
-	{
-		if (current == "-" && !isdigit(_code[i]))
-		{
-			if (!res.empty())
-			{
+	for (size_t i = 0; i != _code.length(); i++) {
+		if (current == "-" && !isdigit(_code[i])) {
+			if (!res.empty()) {
 				Tokens top = res.at(res.size() - 1).first;
-				if (top != Tokens::Lit && top != Tokens::Name)
-				{
+				if (top != Tokens::Lit && top != Tokens::Name) {
 					res.push_back(Token(Tokens::Oper, "--"));
-				}
-				else
-				{
+				} else {
 					res.push_back(Token(Tokens::Oper, "-"));
 				}
-			}
-			else
-			{
+			} else {
 				res.push_back(Token(Tokens::Oper, "--"));
 			}
 			current = "";
@@ -123,55 +92,43 @@ vector<Token> Scaner::get_tokens() const // replace code to tokens
 		if (isalnum(_code[i]) || _code[i] == '_') // number or name
 		{
 			current += _code[i];
-		}
-		else if (_code[i] == '-' && current.empty()) // negative number
+		} else if (_code[i] == '-' && current.empty()) // negative number
 		{
 			current = "-";
-		}
-		else if (_code[i] == '.' && (current.empty() || is_num(current))) // fraction
+		} else if (_code[i] == '.' && (current.empty() || is_num(current))) // fraction
 		{
 			current += '.';
-		}
-		else if (_code[i] == '"') // string
+		} else if (_code[i] == '"') // string
 		{
 			string temp = _code;
 			replace_all(temp, "\\", "b");
 			instr = !instr || (i != 0 && temp[i - 1] == '\\');
 			current += '"';
-		}
-		else if (instr) // string
+		} else if (instr) // string
 		{
 			current += _code[i];
-		}
-		else if (_code[i] == '(' && _code[i + 1] == ')')
-		{
+		} else if (_code[i] == '(' && _code[i + 1] == ')') {
 			res.push_back(Token(this->id_token(current), current));
 			res.push_back(Token(Tokens::Br, "("));
 			res.push_back(Token(Tokens::Lit, "nil"));
 			res.push_back(Token(Tokens::Br, ")"));
 			current = "";
 			++i;
-		}
-		else if (_code[i] == '[' && _code[i + 1] == ']')
-		{
+		} else if (_code[i] == '[' && _code[i + 1] == ']') {
 			res.push_back(Token(this->id_token(current), current));
 			res.push_back(Token(Tokens::Br, "["));
 			res.push_back(Token(Tokens::Lit, "nil"));
 			res.push_back(Token(Tokens::Br, "]"));
 			current = "";
 			++i;
-		}
-		else if (_code[i] == '{' && _code[i + 1] == '}')
-		{
+		} else if (_code[i] == '{' && _code[i + 1] == '}') {
 			res.push_back(Token(this->id_token(current), current));
 			res.push_back(Token(Tokens::Br, "{"));
 			res.push_back(Token(Tokens::Lit, "nil"));
 			res.push_back(Token(Tokens::Br, "}"));
 			current = "";
 			++i;
-		}
-		else
-		{
+		} else {
 			if (!current.empty() && current != " " && current != "\t") // push previous
 			{
 				res.push_back(Token(this->id_token(current), current));
@@ -181,23 +138,20 @@ vector<Token> Scaner::get_tokens() const // replace code to tokens
 			if (this->id_token(current) == Tokens::Oper && i != _code.length() - 1) // ==, /=, etc.
 			{
 				string temp = current + _code[i + 1];
-				if (this->id_token(temp) == Tokens::Oper)
-				{
+				if (this->id_token(temp) == Tokens::Oper) {
 					current = temp;
 					i++;
 				}
 			}
 
-			if (!current.empty() && current != " " && current != "\t")
-			{
+			if (!current.empty() && current != " " && current != "\t") {
 				res.push_back(Token(this->id_token(current), current));
 			}
 			current = "";
 		}
 	}
 	const Token t = Token(this->id_token(current), current);
-	if (t.first != Tokens::Unknown)
-	{
+	if (t.first != Tokens::Unknown) {
 		res.push_back(t);
 	}
 

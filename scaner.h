@@ -4,8 +4,7 @@
 #include "database.h"
 #include "tools.h"
 
-class Scaner
-{
+class Scaner {
 private:
 	string _code; // variable contains code
 	string compress_code(const vector<string>& c) const; // join lines to one string
