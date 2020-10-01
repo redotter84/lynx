@@ -1,156 +1,107 @@
 #include "tree.h"
 
-Nodes SyntaxTree::id_type(Token token) const
-{
-	if (token.first == Tokens::Macro)
-	{
-		if (token.second == "program")
-		{
+Nodes SyntaxTree::id_type(Token token) const {
+	if (token.first == Tokens::Macro) {
+		if (token.second == "program") {
 			return Nodes::Program;
-		}
-		else if (token.second == "block" || token.second == "if-then" ||
+		} else if (token.second == "block" || token.second == "if-then" ||
 			token.second == "if-else" || token.second == "for-do" ||
-			token.second == "def-do")
-		{
+			token.second == "def-do") {
 			return Nodes::Block;
-		}
-		else if (token.second == "expr" || token.second == "if-cond" ||
+		} else if (token.second == "expr" || token.second == "if-cond" ||
 			token.second == "for-cond" || token.second == "for-init" ||
 			token.second == "for-incr" || token.second == "def-name" ||
-			token.second == "def-type" || token.second == "def-arg")
-		{
+			token.second == "def-type" || token.second == "def-arg") {
 			return Nodes::Expr;
-		}
-		else if (token.second == "if" || token.second == "for" ||
-			token.second == "def")
-		{
+		} else if (token.second == "if" || token.second == "for" ||
+			token.second == "def") {
 			return Nodes::Stat;
-		}
-		else
-		{
+		} else {
 			return Nodes::Unknown;
 		}
-	}
-	else if (token.first == Tokens::Lit)
-	{
+	} else if (token.first == Tokens::Lit) {
 		return Nodes::Lit;
-	}
-	else if (token.first == Tokens::Oper)
-	{
+	} else if (token.first == Tokens::Oper) {
 		return Nodes::Oper;
-	}
-	else if (token.first == Tokens::Name)
-	{
+	} else if (token.first == Tokens::Name) {
 		return Nodes::Var;
-	}
-	else if (token.first == Tokens::Fun)
-	{
+	} else if (token.first == Tokens::Fun) {
 		return Nodes::Fun;
-	}
-	else if (token.first == Tokens::FunName)
-	{
+	} else if (token.first == Tokens::FunName) {
 		return Nodes::FunName;
-	}
-	else if (token.first == Tokens::Br && token.second == "[")
-	{
+	} else if (token.first == Tokens::Br && token.second == "[") {
 		return Nodes::Arr;
-	}
-	else
-	{
+	} else {
 		return Nodes::Unknown;
 	}
 }
 
-string SyntaxTree::view(const string n) const
-{
+string SyntaxTree::view(const string n) const {
 	string res = n + value + " (" + str_node(node_type) + ")";
-	for (const auto& iter : this->subs)
-	{
-		if (iter != nullptr)
-		{
+	for (const auto& iter : this->subs) {
+		if (iter != nullptr) {
 			res += iter->view(n + "  ");
 		}
 	}
 	return res;
 }
 
-SyntaxTree::SyntaxTree(){}
+SyntaxTree::SyntaxTree() {}
 
-SyntaxTree::SyntaxTree(Token token)
-{
+SyntaxTree::SyntaxTree(Token token) {
 	this->value = token.second;
 	this->node_type = this->id_type(token);
 }
 
-SyntaxTree::operator string() const
-{
+SyntaxTree::operator string() const {
 	return this->view("\n");
 }
 
-SyntaxTree create_tree(vector<Token>* tokens)
-{
-	if (tokens->empty())
-	{
+SyntaxTree create_tree(vector<Token>* tokens) {
+	if (tokens->empty()) {
 		return SyntaxTree(Token(Tokens::Macro, ""));
 	}
 	SyntaxTree tree = SyntaxTree((*tokens)[0]);
 	tokens->erase(tokens->cbegin());
 
 	if (tree.node_type == Nodes::Program || tree.node_type == Nodes::Block ||
-		tree.node_type == Nodes::Expr || tree.node_type == Nodes::Stat)
-	{
+		tree.node_type == Nodes::Expr || tree.node_type == Nodes::Stat) {
 		const int end_pos = find_end(*tokens, tree.value);
 		vector<Token> contain(tokens->cbegin(), tokens->cbegin() + end_pos);
 
-		while (!contain.empty())
-		{
+		while (!contain.empty()) {
 			auto sub = make_shared<SyntaxTree>(create_tree(&contain));
 			tree.subs.push_back(sub);
 		}
 		tokens->erase(tokens->cbegin(), tokens->cbegin() + end_pos + 1);
-	}
-	else if (tree.node_type == Nodes::Oper)
-	{
-		if (db_un_oper.find(tree.value) != db_un_oper.cend())
-		{
+	} else if (tree.node_type == Nodes::Oper) {
+		if (db_un_oper.find(tree.value) != db_un_oper.cend()) {
 			auto sub = make_shared<SyntaxTree>(create_tree(tokens));
 			tree.subs.push_back(sub);
-		}
-		else
-		{
+		} else {
 			auto right = make_shared<SyntaxTree>(create_tree(tokens));
 			auto left = make_shared<SyntaxTree>(create_tree(tokens));
 			tree.subs.push_back(left);
 			tree.subs.push_back(right);
 		}
-	}
-	else if (tree.node_type == Nodes::Fun)
-	{
+	} else if (tree.node_type == Nodes::Fun) {
 		auto sub = make_shared<SyntaxTree>(create_tree(tokens));
 		tree.subs.push_back(sub);
-	}
-	else if (tree.node_type == Nodes::Lit || tree.node_type == Nodes::Var || 
-		tree.node_type == Nodes::FunName)
-	{
+	} else if (tree.node_type == Nodes::Lit || tree.node_type == Nodes::Var ||
+		tree.node_type == Nodes::FunName) {
 		tree.subs = {};
-	}
-	else if (tree.node_type == Nodes::Arr)
-	{
+	} else if (tree.node_type == Nodes::Arr) {
 		auto sub = make_shared<SyntaxTree>(create_tree(tokens));
 		tree.subs.push_back(sub);
-	}
-	else
-	{
+	} else {
 		tree.subs = {};
 	}
 	return tree;
 }
 
-string arr_str(const SyntaxTree& tree)
-{
+string arr_str(const SyntaxTree& tree) {
 	string res;
-	if (tree.value != ",")
-	{
+	if (tree.value != ",") {
 		res = tree.value;
 		return res;
 	}

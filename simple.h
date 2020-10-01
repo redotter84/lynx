@@ -3,8 +3,7 @@
 #include "env.h"
 #include "tree.h"
 
-struct Variable
-{
+struct Variable {
 	string name;
 	string value;
 	string type;
@@ -16,8 +15,7 @@ struct Variable
 	bool operator == (const Variable& v) const;
 };
 
-struct Function
-{
+struct Function {
 	string name;
 	string type;
 	string path;
@@ -29,8 +27,7 @@ struct Function
 extern vector<Variable> rnt_var_table;
 extern vector<Function> rnt_fun_table;
 
-class SimpleTree
-{
+class SimpleTree {
 private:
 	void get_vars(const SyntaxTree& tree, const string path = "0", const string curp = "") const;
 	void get_funs(const SyntaxTree& tree, const string path = "0") const;

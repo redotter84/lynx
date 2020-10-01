@@ -4,8 +4,7 @@
 
 #include "asm.h"
 
-bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
-{
+bool Asm::pre_funs_asm_tree(SyntaxTree& tree) {
 	if (tree.value == "fun0") // print
 	{
 		const string st_c = to_string(this->stat_count);
@@ -18,8 +17,7 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		Variable var0;
 		var0.name = a1;
 		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "str")
-		{
+		if (var0.type != "str") {
 			throw "bad arguments";
 		}
 
@@ -38,8 +36,7 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		tree.subs = {};
 
 		return true;
-	}
-	else if (tree.value == "fun1") // input
+	} else if (tree.value == "fun1") // input
 	{
 		const string tvar = "t" + to_string(this->temp_count);
 		++this->temp_count;
@@ -63,47 +60,14 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		tree.subs = {};
 
 		return true;
-	}
-	else if (tree.value == "fun2") // sin
+	} else if (tree.value == "fun2") // sin
 	{
 		this->asm_tree(*tree.subs[0]);
 
 		Variable var0;
 		var0.name = tree.subs[0]->value;
 		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "num")
-		{
-			throw "bad arguments";
-		}
-		
-		const string oper1 = "fld " + tree.subs[0]->value + "\n";
-		const string op = "fsin \n";
-
-		const string tvar = "t" + to_string(this->temp_count);
-		++this->temp_count;
-		const string temp = "fstp " + tvar + "\n";
-
-		this->asm_vars += tvar + " dd ?" + "\n";
-		Variable v; v.name = tvar; v.type = "num";
-		rnt_var_table.push_back(v);
-
-		this->asm_tcode += oper1 + op + temp;
-
-		tree.value = tvar;
-		tree.node_type = Nodes::Var;
-		tree.subs = {};
-
-		return true;
-	}
-	else if (tree.value == "fun3") // cos
-	{
-		this->asm_tree(*tree.subs[0]);
-
-		Variable var0;
-		var0.name = tree.subs[0]->value;
-		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "num")
-		{
+		if (var0.type != "num") {
 			throw "bad arguments";
 		}
 
@@ -125,16 +89,43 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		tree.subs = {};
 
 		return true;
-	}
-	else if (tree.value == "fun4") // tan
+	} else if (tree.value == "fun3") // cos
 	{
 		this->asm_tree(*tree.subs[0]);
 
 		Variable var0;
 		var0.name = tree.subs[0]->value;
 		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "num")
-		{
+		if (var0.type != "num") {
+			throw "bad arguments";
+		}
+
+		const string oper1 = "fld " + tree.subs[0]->value + "\n";
+		const string op = "fsin \n";
+
+		const string tvar = "t" + to_string(this->temp_count);
+		++this->temp_count;
+		const string temp = "fstp " + tvar + "\n";
+
+		this->asm_vars += tvar + " dd ?" + "\n";
+		Variable v; v.name = tvar; v.type = "num";
+		rnt_var_table.push_back(v);
+
+		this->asm_tcode += oper1 + op + temp;
+
+		tree.value = tvar;
+		tree.node_type = Nodes::Var;
+		tree.subs = {};
+
+		return true;
+	} else if (tree.value == "fun4") // tan
+	{
+		this->asm_tree(*tree.subs[0]);
+
+		Variable var0;
+		var0.name = tree.subs[0]->value;
+		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
+		if (var0.type != "num") {
 			throw "bad arguments";
 		}
 
@@ -156,16 +147,14 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		tree.subs = {};
 
 		return true;
-	}
-	else if (tree.value == "fun5") // log
+	} else if (tree.value == "fun5") // log
 	{
 		this->asm_tree(*tree.subs[0]);
 
 		Variable var0;
 		var0.name = tree.subs[0]->value;
 		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "num")
-		{
+		if (var0.type != "num") {
 			throw "bad arguments";
 		}
 
@@ -188,16 +177,14 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		tree.subs = {};
 
 		return true;
-	}
-	else if (tree.value == "fun6") // round
+	} else if (tree.value == "fun6") // round
 	{
 		this->asm_tree(*tree.subs[0]);
 
 		Variable var0;
 		var0.name = tree.subs[0]->value;
 		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "num")
-		{
+		if (var0.type != "num") {
 			throw "bad arguments";
 		}
 
@@ -219,8 +206,7 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		tree.subs = {};
 
 		return true;
-	}
-	else if (tree.value == "fun7") // str
+	} else if (tree.value == "fun7") // str
 	{
 		const string tvar = "t" + to_string(this->temp_count);
 		++this->temp_count;
@@ -234,8 +220,7 @@ bool Asm::pre_funs_asm_tree(SyntaxTree& tree)
 		Variable var0;
 		var0.name = a1;
 		var0 = *find(rnt_var_table.cbegin(), rnt_var_table.cend(), var0);
-		if (var0.type != "num")
-		{
+		if (var0.type != "num") {
 			throw "bad arguments";
 		}
 
@@ -294,13 +279,10 @@ _str_zero db '0'
 _str_temp db 1024 dup(0)
 _str_res db 1024 dup(0)
 )";
-		if (was)
-		{
+		if (was) {
 			proc = "";
 			vars = "";
-		}
-		else
-		{
+		} else {
 			was = true;
 		}
 

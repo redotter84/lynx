@@ -17,7 +17,6 @@ int find_end(const vector<Token>& tokens, const string stat);
 void replace_all(string& str, const string& s1, const string& s2);
 
 template <typename T>
-void merge(vector<T>& v1, const vector<T>& v2)
-{
+void merge(vector<T>& v1, const vector<T>& v2) {
 	v1.insert(v1.cend(), v2.cbegin(), v2.cend());
 }

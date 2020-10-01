@@ -1,16 +1,15 @@
- #pragma once
+#pragma once
 
 #include "env.h"
 #include "database.h"
 #include "tools.h"
 
-class Parser
-{
+class Parser {
 private:
 	vector<Token> _code;
-	vector<Token> sugar_while(const vector<Token>& tokens, 
+	vector<Token> sugar_while(const vector<Token>& tokens,
 		vector<Token>::const_iterator& iter) const;
-	vector<Token> sugar_elif(const vector<Token>& tokens, 
+	vector<Token> sugar_elif(const vector<Token>& tokens,
 		vector<Token>::const_iterator& iter) const;
 	vector<Token> sugar(const vector<Token>& tokens) const;
 	vector<Token> parse_if(const vector<Token>& code) const;
